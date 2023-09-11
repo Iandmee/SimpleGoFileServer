@@ -25,10 +25,12 @@ func uploadHandler(w http.ResponseWriter, r *http.Request, path *string, filenam
 	}
 	if err := os.WriteFile(*path, body, DEFAULT_FILE_PERMISSIONS); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	_, err = w.Write([]byte(fmt.Sprintf("File \"%s\" successfully uploaded.", *filename)))
 	if err != nil {
 		log.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -42,6 +44,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request, path *string) {
 		err := f.Close()
 		if err != nil {
 			log.Print(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}(f)
 	fi, err := f.Stat()
@@ -61,6 +64,7 @@ func deleteHandler(w http.ResponseWriter, path *string, filename *string) {
 	_, err := w.Write([]byte(fmt.Sprintf("File \"%s\" successfully deleted.", *filename)))
 	if err != nil {
 		log.Print(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
